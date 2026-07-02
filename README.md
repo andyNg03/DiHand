@@ -14,13 +14,20 @@ Run the app, hold up a hand, and you'll see a live skeleton overlay on each dete
 
 - **Python 3.14** (the project runs on 3.14; earlier 3.x versions likely work but are untested)
 - A webcam
-- macOS notes: Pygame is compiled against SDL2. On Apple Silicon, install it with Homebrew if you build Pygame from source:
-  ```
-  brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf
-  ```
+- **SDL2** (macOS) — Pygame is compiled against it. On Python 3.14 you must install it *before* Pygame; see [Setup](#setup).
 - The MediaPipe hand model (`hand_landmarker.task`) ships in this repo, so no separate download is needed.
 
 ## Setup
+
+On Python 3.14 there is often no prebuilt Pygame wheel, so `pip` builds it from source — which needs SDL2 present **first**. On macOS, install SDL2 before Pygame or the `pip install` will fail with a build error:
+
+```bash
+brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf   # macOS / Python 3.14 — do this first
+```
+
+(You can skip this on a Python version where a Pygame wheel is available — `pip` will use the wheel and never touch SDL2.)
+
+Then create the environment and install the Python packages:
 
 ```bash
 python3 -m venv venv
