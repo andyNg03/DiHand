@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+
+# macOS
+.DS_Store
+
+# Working / process docs — kept local, not published
+CLAUDE.md
+AGENTS.md
+handoff.md
+
+# Generated exports
+dihand_*.png
+dihand_*.excalidraw
