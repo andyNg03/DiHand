@@ -12,7 +12,7 @@ Run the app, hold up a hand, and you'll see a live skeleton overlay on each dete
 
 ## Requirements
 
-- **Python 3.9–3.13** (tested on 3.13). The code uses no version-specific features; a mainstream 3.x is recommended because MediaPipe and Pygame ship prebuilt wheels for it — nothing has to be compiled.
+- **Python 3.13** (tested). MediaPipe and Pygame both ship prebuilt wheels for it, so nothing has to be compiled. The code uses no version-specific features, so other recent 3.x versions likely work too — 3.13 is just the one that's verified.
 - A webcam
 - The MediaPipe hand model (`hand_landmarker.task`) ships in this repo, so no separate download is needed.
 
