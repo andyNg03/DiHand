@@ -12,22 +12,11 @@ Run the app, hold up a hand, and you'll see a live skeleton overlay on each dete
 
 ## Requirements
 
-- **Python 3.14** (the project runs on 3.14; earlier 3.x versions likely work but are untested)
+- **Python 3.9–3.13** (tested on 3.13). The code uses no version-specific features; a mainstream 3.x is recommended because MediaPipe and Pygame ship prebuilt wheels for it — nothing has to be compiled.
 - A webcam
-- **SDL2** (macOS) — Pygame is compiled against it. On Python 3.14 you must install it *before* Pygame; see [Setup](#setup).
 - The MediaPipe hand model (`hand_landmarker.task`) ships in this repo, so no separate download is needed.
 
 ## Setup
-
-On Python 3.14 there is often no prebuilt Pygame wheel, so `pip` builds it from source — which needs SDL2 present **first**. On macOS, install SDL2 before Pygame or the `pip install` will fail with a build error:
-
-```bash
-brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf   # macOS / Python 3.14 — do this first
-```
-
-(You can skip this on a Python version where a Pygame wheel is available — `pip` will use the wheel and never touch SDL2.)
-
-Then create the environment and install the Python packages:
 
 ```bash
 python3 -m venv venv
@@ -35,9 +24,21 @@ source venv/bin/activate
 pip install mediapipe pygame
 ```
 
-MediaPipe pulls in OpenCV and NumPy as dependencies; DiHand uses OpenCV for webcam capture and NumPy for coordinate math.
+That's it — on a supported Python this installs entirely from prebuilt wheels, with no compiler or system libraries required. MediaPipe pulls in OpenCV and NumPy as dependencies; DiHand uses OpenCV for webcam capture and NumPy for coordinate math.
 
-> On import you may see `objc[...]: Class SDL... is implemented in both ...` warnings on macOS. These come from MediaPipe bundling its own copy of SDL2 alongside the system one. They're harmless — the app runs correctly.
+> On import you may see `objc[...]: Class SDL... is implemented in both ...` warnings on macOS. OpenCV and Pygame each bundle their own copy of SDL2, and the runtime notices the duplicate. They're harmless — the app runs correctly.
+
+<details>
+<summary>Running on Python 3.14</summary>
+
+3.14 is new enough that Pygame may not have a prebuilt wheel yet, so `pip` will try to build it from source — which needs SDL2 installed **first**, or the install fails with a build error. On macOS:
+
+```bash
+brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf   # install before `pip install pygame`
+```
+
+Everything else is the same. If you're not tied to 3.14, using a 3.9–3.13 interpreter avoids this entirely.
+</details>
 
 ## Usage
 
