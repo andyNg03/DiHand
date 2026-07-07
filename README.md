@@ -9,6 +9,9 @@ Built with [MediaPipe](https://developers.google.com/mediapipe) for hand landmar
 ## Demo
 
 Run the app, hold up a hand, and you'll see a live skeleton overlay on each detected hand, a per-hand gesture label, and the current mode in the top-left corner. Everything is driven by the poses in the [gesture reference](#gesture-reference) below.
+<p align="center">
+  <img src="DiHand_Demo.gif" alt="DiHand demo" width="600">
+</p>
 
 ## Requirements
 
