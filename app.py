@@ -9,6 +9,7 @@ Press 'q' or close the window to quit.
 
 # Stdlib.
 import math                              # sqrt + arc angle math for the progress circle
+import sys                               # read argv for the --profile flag
 import time                              # frame timestamps + export hold timer
 
 # Third-party.
@@ -254,6 +255,15 @@ if not cap.isOpened():
 # right before the loop means timestamps start near 0 for the first frame.
 loop_start = time.time()
 
+# --- Profiling (opt-in via `python app.py --profile`) ---
+# Off by default so normal runs pay nothing. When on, we accumulate wall-clock
+# time for the whole loop body and for MediaPipe inference alone, then print a
+# rolling average to the terminal every PROFILE_EVERY frames. detect_hands()
+# always writes to _prof; the accumulators just stay unread when PROFILE is off.
+PROFILE = "--profile" in sys.argv
+PROFILE_EVERY = 30                       # frames between terminal reports (~1/sec at 30fps).
+_prof = {"frames": 0, "loop_s": 0.0, "detect_s": 0.0}
+
 # Pygame window and font. Created inside ensure_window() on the first iteration
 # because we need the camera's resolution to size the window correctly, and we
 # only learn that resolution from the first successful frame read.
@@ -317,7 +327,12 @@ def detect_hands(frame_rgb):
     # Synchronous call. `result` exposes two parallel lists:
     #   result.hand_landmarks[i] = list of 21 landmark points for hand i
     #   result.handedness[i]     = "Left"/"Right" predictions for hand i
-    return landmarker.detect_for_video(mp_image, timestamp_ms)
+    # perf_counter (monotonic, high-res) brackets ONLY the inference call, so
+    # this measures MediaPipe cost in isolation from capture and render.
+    t = time.perf_counter()
+    result = landmarker.detect_for_video(mp_image, timestamp_ms)
+    _prof["detect_s"] += time.perf_counter() - t
+    return result
 
 
 def ensure_window(w, h):
@@ -520,6 +535,9 @@ def cleanup():
 
 try:
     while True:
+        # Bracket the whole body so the fps figure reflects everything the loop
+        # does per frame (capture + detect + classify + render), not just one stage.
+        _t0 = time.perf_counter()
         if not handle_events():
             # User quit — break immediately so we don't render half a frame.
             break
@@ -556,5 +574,19 @@ try:
 
         # Stage 10: present the assembled frame — the moment the user sees it.
         pygame.display.flip()
+
+        # Profiling report. Accumulate this frame's body time, then every
+        # PROFILE_EVERY frames print rolling averages and reset — a fresh window
+        # each report so the numbers track the *current* run, not the lifetime average.
+        if PROFILE:
+            _prof["loop_s"] += time.perf_counter() - _t0
+            _prof["frames"] += 1
+            if _prof["frames"] >= PROFILE_EVERY:
+                n = _prof["frames"]
+                fps = n / _prof["loop_s"] if _prof["loop_s"] else 0.0
+                detect_ms = _prof["detect_s"] / n * 1000
+                frame_ms = _prof["loop_s"] / n * 1000
+                print(f"[profile] {fps:5.1f} fps | frame {frame_ms:5.1f} ms | detect {detect_ms:5.1f} ms")
+                _prof = {"frames": 0, "loop_s": 0.0, "detect_s": 0.0}
 finally:
     cleanup()

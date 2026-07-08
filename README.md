@@ -52,6 +52,14 @@ python app.py
 
 Press `q` or close the window to quit.
 
+To print live performance stats to the terminal — frames per second, per-frame time, and MediaPipe detection time — add `--profile`:
+
+```bash
+python app.py --profile
+```
+
+It reports roughly once a second and is off by default, so a normal run carries no overhead.
+
 DiHand is **mode-based**: a gesture only means what the current mode says it means, which keeps poses from being misread. You explicitly toggle modes, rather than the app guessing your intent every frame.
 
 - **Idle** — the default. Nothing is drawn. You can select and move existing shapes here, or hold a fist to export.
